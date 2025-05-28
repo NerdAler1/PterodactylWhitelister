@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Whitelist Signup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --text-color: #e0e0e0;
+      --primary-color: #7f5af0;
+      --secondary-color: #9c77f1;
+      --error-bg: rgba(255, 0, 0, 0.1);
+      --success-bg: rgba(0, 255, 0, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1em;
+    }
+    .card {
+      background: var(--card-bg);
+      padding: 2em;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 380px;
+    }
+    h1 {
+      margin-bottom: 1em;
+      font-size: 1.75rem;
+      color: var(--primary-color);
+      text-align: center;
+    }
+    .flash {
+      padding: 0.75em 1em;
+      margin-bottom: 1em;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .flash.error {
+      background: var(--error-bg);
+      color: #ff6b6b;
+    }
+    .flash.success {
+      background: var(--success-bg);
+      color: #6bff6b;
+    }
+    form label {
+      display: block;
+      margin-bottom: 0.75em;
+      font-weight: 500;
+    }
+    input {
+      width: 100%;
+      padding: 0.75em;
+      margin-top: 0.25em;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #2a2a2a;
+      color: var(--text-color);
+      font-size: 0.95rem;
+      transition: border 0.2s;
+    }
+    input:focus {
+      border-color: var(--secondary-color);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(159,87,255,0.3);
+    }
+    button {
+      width: 100%;
+      padding: 0.75em;
+      margin-top: 1em;
+      background: var(--secondary-color);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: var(--primary-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Join the Whitelist</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, msg in messages %}
+        <div class="flash {{ category }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="post">
+      <label for="mc_username">
+        Minecraft Username
+        <input type="text" id="mc_username" name="mc_username" placeholder="e.g. Notch" required>
+      </label>
+
+      <label for="discord_username">
+        Discord Username
+        <input type="text" id="discord_username" name="discord_username" placeholder="e.g. Jack#1234" required>
+      </label>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</body>
+</html>

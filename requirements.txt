@@ -1,0 +1,7 @@
+Flask==2.3.2
+requests==2.31.0
+Flask-HTTPAuth==4.8.0
+dotenv
+py-dactyl
+APScheduler==3.10.1
+Setuptools<81
