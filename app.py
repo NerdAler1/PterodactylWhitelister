@@ -93,10 +93,11 @@ def index():
             flash(f"Minecraft user '{mc_username}' not found.", "error")
             return redirect(url_for("index"))
         mc_uuid = resp.json()["id"]
-
+        
+        ip_address = request.headers.get("X-Forwarded-For", request.remote_addr)
         c.execute(
-            "INSERT INTO whitelist (mc_username, mc_uuid, discord_username) VALUES (?, ?, ?)",
-            (mc_username, mc_uuid, discord_username)
+            "INSERT INTO whitelist (mc_username, mc_uuid, discord_username, ip_address) VALUES (?, ?, ?, ?)",
+            (mc_username, mc_uuid, discord_username, ip_address)
         )
         conn.commit()
         flash("Your request has been submitted for approval.", "success")
