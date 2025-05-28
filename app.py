@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS whitelist (
     mc_uuid TEXT NOT NULL,
     discord_username TEXT NOT NULL,
     approved INTEGER NOT NULL DEFAULT 0,
+    ip_address TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 )
 """)
@@ -39,6 +40,13 @@ CREATE TABLE IF NOT EXISTS ptero_servers (
 )
 """)
 conn.commit()
+
+# Add IP address for old fucks
+c.execute("PRAGMA table_info(whitelist)")
+cols = [row[1] for row in c.fetchall()]
+if "ip_address" not in cols:
+    c.execute("ALTER TABLE whitelist ADD COLUMN ip_address TEXT")
+    conn.commit()
 
 PTERO_URL = os.getenv("PTERO_API_URL")
 PTERO_KEY = os.getenv("PTERO_API_KEY")
@@ -129,8 +137,9 @@ def admin():
     servers = c.fetchall()
 
     c.execute("""
-      SELECT id, mc_username, mc_uuid, discord_username, approved, created_at
-        FROM whitelist ORDER BY created_at DESC
+      SELECT id, mc_username, mc_uuid, discord_username, ip_address, approved, created_at
+        FROM whitelist
+        ORDER BY created_at DESC
     """)
     entries = c.fetchall()
 
