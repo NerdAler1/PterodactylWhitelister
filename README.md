@@ -106,4 +106,4 @@ MIT © Jack Thiess
 
 ## AI Disclaimer
 
-This README, as well a lot of the web UIs, were created using the assistance of AI. Additionally AI autofill was used during the creation of the entire project.
+This README, as well a lot of the web UIs, were created using the assistance of AI. Additionally AI autocomplete was used during the creation of the entire project.
