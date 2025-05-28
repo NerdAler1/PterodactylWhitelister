@@ -27,7 +27,7 @@ A Flask-based web application to collect Minecraft and Discord usernames, conver
 1. **Clone the repo**
 
    ```bash
-   git clone https://github.com/yourusername/pterodactyl-whitelist-manager.git
+   git clone https://github.com/NerdAler1/PterodactylWhitelister.git
    cd pterodactyl-whitelist-manager
    ```
 
