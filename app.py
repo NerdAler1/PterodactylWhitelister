@@ -62,7 +62,7 @@ def sync_whitelists():
             formatted = str(UUID(raw_uuid))
         except ValueError:
             formatted = raw_uuid
-            whitelist_data.append({"uuid": formatted, "name": name})   
+        whitelist_data.append({"uuid": formatted, "name": name})   
     
     payload = json.dumps(whitelist_data, indent=2)  
 
