@@ -5,6 +5,7 @@ from flask_httpauth import HTTPBasicAuth
 from pydactyl import PterodactylClient
 from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
+from uuid import UUID
 
 load_dotenv()
 app = Flask(__name__)
@@ -55,10 +56,14 @@ api = PterodactylClient(PTERO_URL, PTERO_KEY)
 def sync_whitelists():
     c.execute("SELECT mc_username, mc_uuid FROM whitelist WHERE approved=1")
     entries = c.fetchall()
-    whitelist_data = [
-        {"uuid": uuid, "name": name}
-        for name, uuid in entries
-    ]
+    whitelist_data = []
+    for name, raw_uuid in entries:
+        try:
+            formatted = str(UUID(raw_uuid))
+        except ValueError:
+            formatted = raw_uuid
+            whitelist_data.append({"uuid": formatted, "name": name})   
+    
     payload = json.dumps(whitelist_data, indent=2)  
 
     c.execute("SELECT server_id FROM ptero_servers WHERE enabled=1")
@@ -92,7 +97,8 @@ def index():
         if resp.status_code != 200:
             flash(f"Minecraft user '{mc_username}' not found.", "error")
             return redirect(url_for("index"))
-        mc_uuid = resp.json()["id"]
+        raw = resp.json()['id']
+        mc_uuid = str(UUID(raw))  # Format UUID properly
         
         ip_address = request.headers.get("X-Forwarded-For", request.remote_addr)
         c.execute(
