@@ -100,6 +100,7 @@ A Flask-based web application to collect Minecraft and Discord usernames, conver
 * **Authentication**: Replace HTTP Basic Auth with a full user model if needed.
 * **Scheduler**: Adjust the APScheduler interval as desired.
 * **Discord Verifier** I would like the discord username field to actually check if users are in a discord server, that way only discord server members can actually sign up (obviously this would not be foolproof, but its possible to cut down on spam.)
+* **Notifications** I would love to connect this to a service like ntfy or even just a discord webhook so that I could have notifications for new whitelist applicants.
 
 ## License
 
