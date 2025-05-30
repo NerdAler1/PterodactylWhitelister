@@ -1,5 +1,6 @@
 import os, json, sqlite3
 from flask import Flask, request, render_template, flash, redirect, url_for
+import logging
 import requests
 from flask_httpauth import HTTPBasicAuth
 from pydactyl import PterodactylClient
@@ -9,6 +10,7 @@ from uuid import UUID
 
 load_dotenv()
 app = Flask(__name__)
+
 app.secret_key = os.getenv("FLASK_SECRET")
 
 
@@ -107,7 +109,14 @@ def index():
             (mc_username, mc_uuid, discord_username, ip_address)
         )
         conn.commit()
-        print(f"New request: {mc_username} ({mc_uuid}) from {ip_address}")
+        app.logger.info(f"New request: {mc_username} ({mc_uuid}) from {ip_address}")
+        NTFY_URL = os.getenv("NTFY_TOPIC")
+        if NTFY_URL:
+            requests.post(f"https://ntfy.sh/{NTFY_URL}",
+                          data=f"New Request: {mc_username}".encode(encoding='utf-8'))
+        else:
+            app.logger.info("NTFY_TOPIC not set, skipping notification.")
+            
         flash("Your request has been submitted for approval.", "success")
         return redirect(url_for("index"))
 
