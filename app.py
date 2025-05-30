@@ -77,8 +77,9 @@ def sync_whitelists():
             app.logger.error(f"Ptero sync failed for {sid}: {e}")
 
 
+Interval = int(os.getenv("SYNC_INTERVAL", 10))
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=sync_whitelists, trigger="interval", minutes=10)
+scheduler.add_job(func=sync_whitelists, trigger="interval", minutes=Interval)
 scheduler.start()
 
 
