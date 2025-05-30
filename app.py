@@ -1,17 +1,19 @@
-import os, json, sqlite3
+import os, json, sqlite3 
 from flask import Flask, request, render_template, flash, redirect, url_for
-import logging
-import requests
+import logging 
+import requests 
 from flask_httpauth import HTTPBasicAuth
 from pydactyl import PterodactylClient
 from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
 from uuid import UUID
 
+
 load_dotenv()
+# Initialize Flask app and logging
 app = Flask(__name__)
 log_format = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
-log_file = "app.log"
+log_file = "app.log" # Set log file
 handler = logging.FileHandler(log_file)
 handler.setFormatter(log_format)
 app.logger.addHandler(handler)
@@ -19,6 +21,7 @@ app.logger.setLevel(logging.INFO)
 app.secret_key = os.getenv("FLASK_SECRET")
 
 
+# Admin HTTP Basic Auth
 auth = HTTPBasicAuth()
 ADMIN_CREDENTIALS = json.loads(os.getenv("ADMIN_CREDS"))
 @auth.verify_password
@@ -26,6 +29,7 @@ def verify(username, password):
     return ADMIN_CREDENTIALS.get(username) == password
 
 
+# Initialize SQLite database
 conn = sqlite3.connect("whitelist.db", check_same_thread=False)
 c = conn.cursor()
 c.execute("""
@@ -49,21 +53,27 @@ CREATE TABLE IF NOT EXISTS ptero_servers (
 """)
 conn.commit()
 
-# Add IP address for old fucks
+
+# Add IP address if not exists
 c.execute("PRAGMA table_info(whitelist)")
 cols = [row[1] for row in c.fetchall()]
 if "ip_address" not in cols:
     c.execute("ALTER TABLE whitelist ADD COLUMN ip_address TEXT")
     conn.commit()
 
+
+# Initialize Pterodactyl API client
 PTERO_URL = os.getenv("PTERO_API_URL")
 PTERO_KEY = os.getenv("PTERO_API_KEY")
 api = PterodactylClient(PTERO_URL, PTERO_KEY)
 
+
+# Sync whitelists with Pterodactyl servers
 def sync_whitelists():
     c.execute("SELECT mc_username, mc_uuid FROM whitelist WHERE approved=1")
     entries = c.fetchall()
     whitelist_data = []
+
     for name, raw_uuid in entries:
         try:
             formatted = str(UUID(raw_uuid))
@@ -72,10 +82,8 @@ def sync_whitelists():
         whitelist_data.append({"uuid": formatted, "name": name})   
     
     payload = json.dumps(whitelist_data, indent=2)  
-
     c.execute("SELECT server_id FROM ptero_servers WHERE enabled=1")
-    servers = [row[0] for row in c.fetchall()]
-
+    servers = [row[0] for row in c.fetchall()]  # Fetch enabled server IDs
     for sid in servers:
         try:
             api.client.servers.files.write_file(sid, "/whitelist.json", payload)  
@@ -83,7 +91,7 @@ def sync_whitelists():
         except Exception as e:
             app.logger.error(f"Ptero sync failed for {sid}: {e}")
 
-
+# Schedule periodic sync
 Interval = int(os.getenv("SYNC_INTERVAL", 10))
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=sync_whitelists, trigger="interval", minutes=Interval)
