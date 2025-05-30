@@ -1,4 +1,4 @@
 .env
 __pycache__
 whitelist.db
-.log
+app.log

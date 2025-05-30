@@ -10,7 +10,12 @@ from uuid import UUID
 
 load_dotenv()
 app = Flask(__name__)
-
+log_format = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
+log_file = "app.log"
+handler = logging.FileHandler(log_file)
+handler.setFormatter(log_format)
+app.logger.addHandler(handler)
+app.logger.setLevel(logging.INFO)
 app.secret_key = os.getenv("FLASK_SECRET")
 
 
