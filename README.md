@@ -53,7 +53,7 @@ A Flask-based web application to collect Minecraft and Discord usernames, conver
    ADMIN_CREDS={"alice":"password1","bob":"password2"}
    PTERO_API_URL=https://panel.yourdomain.com
    PTERO_API_KEY=your_pterodactyl_api_key
-   SYNC_INTERVAL=10 # Minutes
+   SYNC_INTERVAL=10
    ```
 
 4. **Run the app**

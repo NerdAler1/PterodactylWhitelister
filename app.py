@@ -107,6 +107,7 @@ def index():
             (mc_username, mc_uuid, discord_username, ip_address)
         )
         conn.commit()
+        print(f"New request: {mc_username} ({mc_uuid}) from {ip_address}")
         flash("Your request has been submitted for approval.", "success")
         return redirect(url_for("index"))
 
