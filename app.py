@@ -108,7 +108,7 @@ def index():
             return redirect(url_for("index"))
 
         resp = requests.get(
-            f"https://api.mojang.com/users/profiles/minecraft/{mc_username}"
+            f"https://api.minecraftservices.com/minecraft/profile/lookup/name/{mc_username}"
         )
         if resp.status_code != 200:
             flash(f"Minecraft user '{mc_username}' not found.", "error")
