@@ -92,7 +92,7 @@ def sync_whitelists():
             app.logger.error(f"Ptero sync failed for {sid}: {e}")
 
 # Schedule periodic sync
-Interval = int(os.getenv("SYNC_INTERVAL", 10))
+Interval = int(os.getenv("SYNC_INTERVAL", 60))
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=sync_whitelists, trigger="interval", minutes=Interval)
 scheduler.start()
@@ -178,16 +178,16 @@ def admin():
 
 
 
-
+# Manage whitelist requests
 @app.route("/admin/toggle/<int:req_id>", methods=["POST"])
 @auth.login_required
 def toggle(req_id):
-    c.execute("UPDATE whitelist SET approved = 1 - approved WHERE id = ?", (req_id,))
+    c.execute("UPDATE whitelist SET approved = 1 - approved WHERE id = ?", (req_id,)) # Flip approved state
     conn.commit()
     sync_whitelists() 
     return redirect(url_for("admin"))
 
-
+# Delete user from whitelist list
 @app.route("/admin/delete/<int:req_id>", methods=["POST"])
 @auth.login_required
 def delete(req_id):
@@ -197,7 +197,7 @@ def delete(req_id):
     sync_whitelists()
     return redirect(url_for("admin"))
 
-
+# Pterodactyl server management
 @app.route("/admin/servers", methods=["POST"])
 @auth.login_required
 def add_server():
@@ -212,11 +212,11 @@ def add_server():
         flash(f"Added server '{name}'.", "success")
     return redirect(url_for("admin"))
 
-
+# Pterodactyl server toggle
 @app.route("/admin/servers/toggle/<int:srv_id>", methods=["POST"])
 @auth.login_required
 def toggle_server(srv_id):
-    c.execute("UPDATE ptero_servers SET enabled = 1 - enabled WHERE id = ?", (srv_id,))
+    c.execute("UPDATE ptero_servers SET enabled = 1 - enabled WHERE id = ?", (srv_id,)) # Flip enabled state
     conn.commit()
     sync_whitelists()
     return redirect(url_for("admin"))
