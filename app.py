@@ -228,6 +228,7 @@ def cleanup_ptero_servers():
         sid = att.get('identifier')
         if sid:
             current_server_ids.add(sid)
+    
     # Delete servers not present in API
     c.execute("SELECT server_id FROM ptero_servers")
     db_server_ids = set(row[0] for row in c.fetchall())
@@ -237,7 +238,17 @@ def cleanup_ptero_servers():
         app.logger.info(f"Deleted server {sid} from database (no longer present in Pterodactyl API)")
     if missing:
         conn.commit()
-
+        
+    # Reorder IDs to be sequential
+    c.execute("SELECT name, server_id, enabled FROM ptero_servers ORDER BY id ASC")
+    servers = c.fetchall()
+    c.execute("DELETE FROM ptero_servers")
+    for idx, (name, server_id, enabled) in enumerate(servers, start=1):
+        c.execute(
+            "INSERT INTO ptero_servers (id, name, server_id, enabled) VALUES (?, ?, ?, ?)",
+            (idx, name, server_id, enabled)
+        )
+    conn.commit()
 # Pterodactyl server toggle
 @app.route("/admin/servers/toggle/<int:srv_id>", methods=["POST"])
 @auth.login_required
