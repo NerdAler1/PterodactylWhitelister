@@ -163,6 +163,7 @@ def admin():
                 )
     conn.commit()
 
+    cleanup_ptero_servers()  # Clean up servers not present in API
 
     c.execute("SELECT id, name, server_id, enabled FROM ptero_servers")
     servers = c.fetchall()
@@ -211,6 +212,31 @@ def add_server():
         conn.commit()
         flash(f"Added server '{name}'.", "success")
     return redirect(url_for("admin"))
+
+# Remove servers from database if not present in Pterodactyl API
+def cleanup_ptero_servers():
+    app.logger.info("Cleaning up Pterodactyl servers not present in API...")
+    try:
+        raw = api.client.servers.list_servers(params={'per_page': 100})
+    except Exception as e:
+        app.logger.error(f"Failed to fetch servers for cleanup: {e}")
+        return
+    servers_list = raw.get('data', raw)
+    current_server_ids = set()
+    for srv in servers_list:
+        att = srv.get('attributes', {})
+        sid = att.get('identifier')
+        if sid:
+            current_server_ids.add(sid)
+    # Delete servers not present in API
+    c.execute("SELECT server_id FROM ptero_servers")
+    db_server_ids = set(row[0] for row in c.fetchall())
+    missing = db_server_ids - current_server_ids
+    for sid in missing:
+        c.execute("DELETE FROM ptero_servers WHERE server_id = ?", (sid,))
+        app.logger.info(f"Deleted server {sid} from database (no longer present in Pterodactyl API)")
+    if missing:
+        conn.commit()
 
 # Pterodactyl server toggle
 @app.route("/admin/servers/toggle/<int:srv_id>", methods=["POST"])
